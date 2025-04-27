@@ -1,0 +1,38 @@
+name: ci-app
+
+# on – определяет события, которые запускают воркфлоу
+on: 
+  - push
+  - pull_request
+
+jobs:
+  # build – (сборка) произвольно выбранное имя задания
+  # их может быть больше одного
+  build:
+    # операционная система для работы воркфлоу
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps: # список шагов, которые надо выполнить    
+      - uses: actions/checkout@v4 # клонирование репозитория
+
+      - name: Use Node.js ${{ matrix.node-version }} # установка Node, версия берется из matrix: node-version
+        uses: actions/setup-node@v4 
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm' # ускоряет повторные сборки      
+
+      - name: Project setup
+        run:  make setup
+
+      - name: Running tests
+        run: make test
+
+      - name: Launching the linter
+        run: make lint
+
+      - name: Print Hello from Hexlet # экшен Hello from Hexlet action!
+        uses: hexlet-components/hello-from-hexlet-action@release
